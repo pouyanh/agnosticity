@@ -1,0 +1,16 @@
+{
+	"Servers": {
+		"1": {
+			"Name": "AgnostiCity",
+			"Group": "AgnostiCity",
+			"Host": "rdb.agn",
+			"Port": 5432,
+			"Username": "agnostic",
+			"SSLMode": "prefer",
+			"MaintenanceDB": "postgres",
+			"PassFile": "/tmp/pgpassfile",
+			"BGColor": "#ff9900",
+			"FGColor": "#000000"
+		}
+	}
+}

@@ -1,0 +1,181 @@
+version: "3"
+services:
+  esb:
+    image: nats:latest
+    command: -m 80
+    networks:
+      default:
+        aliases:
+          - esb.agn
+    environment:
+      HOSTNAME: esb.agn
+
+  fdb:
+    restart: on-failure
+    image: redis:latest
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test:
+        - "CMD"
+        - "redis-cli"
+        - "--tls"
+        - "--cert"
+        - "/usr/local/etc/redis/tls/redis.crt"
+        - "--key"
+        - "/usr/local/etc/redis/tls/redis.key"
+        - "--cacert"
+        - "/usr/local/etc/redis/tls/ca.crt"
+        - "--user"
+        - "qgui"
+        - "--pass"
+        - "''"
+        - "ping"
+    networks:
+      default:
+        aliases:
+          - fdb.agn
+    volumes:
+      - ./configs/fdb:/usr/local/etc/redis
+      - fdb-tmp:/tmp
+    environment:
+      HOSTNAME: fdb.agn
+
+  fdba:
+    depends_on:
+      - fdb
+    restart: on-failure
+    image: rediscommander/redis-commander:latest
+    healthcheck:
+      test:
+        - "CMD"
+        - "wget"
+        - "--no-verbose"
+        - "--tries=1"
+        - "--spider"
+        - "http://localhost"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    cap_add:
+      - NET_BIND_SERVICE
+    volumes:
+      - fdb-tmp:/tmp/fdb
+    environment:
+      HOSTNAME: fdba.agn
+
+      PORT: 80
+      REDIS_SOCKET: /tmp/fdb/redis.sock
+      REDIS_PASSWORD: "defaultpass"
+
+  nrdb:
+    image: mongo:latest
+    healthcheck:
+      test:
+        - "CMD"
+        - "mongo"
+        - "--norc"
+        - "--quiet"
+        - "--eval"
+        - "'db.getMongo()'"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      default:
+        aliases:
+          - nrdb.agn
+    volumes:
+      - ./.persist/mongo:/data/db
+    environment:
+      HOSTNAME: nrdb.agn
+
+  nrdba:
+    depends_on:
+      - nrdb
+    image: mongo-express:latest
+    healthcheck:
+      test:
+        - "CMD"
+        - "wget"
+        - "--no-verbose"
+        - "--tries=1"
+        - "--spider"
+        - "http://localhost"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      HOSTNAME: nrdba.agn
+
+      ME_CONFIG_MONGODB_SERVER: nrdb.agn
+      ME_CONFIG_OPTIONS_EDITORTHEME: darcula
+      VCAP_APP_PORT: 80
+
+  rdb:
+    restart: on-failure
+    image: postgres:latest
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "pg_isready -U postgres -p 5432"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      default:
+        aliases:
+          - rdb.agn
+    volumes:
+      - ./entrypoints/rdb:/docker-entrypoint-initdb.d
+      - ./configs/rdb/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./.persist/postgresql:/var/lib/postgresql/data
+      # - ./configs/rdb/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      - rdb-run:/var/run/postgresql
+    environment:
+      HOSTNAME: rdb.agn
+
+      POSTGRES_PASSWORD: pass
+      POSTGRES_MULTIPLE_DATABASES: 'passengers,agnostic : drivers,agnostic'
+
+  rdba:
+    depends_on:
+      - rdb
+    restart: on-failure
+    image: dpage/pgadmin4:latest
+    entrypoint:
+      - "/bin/sh"
+      - "-c"
+      - "cp /tmp/pgpassfile.org /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
+    healthcheck:
+      test:
+        - "CMD"
+        - "wget"
+        - "--no-verbose"
+        - "--tries=1"
+        - "--spider"
+        - "http://localhost"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      default:
+        aliases:
+          - rdba.agn
+    volumes:
+      - ./configs/rdba/servers.json:/pgadmin4/servers.json
+      - ./configs/rdba/pgpassfile:/tmp/pgpassfile.org
+    environment:
+      HOSTNAME: rdba.agn
+
+      PGADMIN_DEFAULT_EMAIL: dba@tech.agn
+      PGADMIN_DEFAULT_PASSWORD: secret
+      PGADMIN_CONFIG_LOGIN_BANNER: '"Use `dba@tech.agn` for email and `secret` for password"'
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGADMIN_DISABLE_POSTFIX: "True"
+
+volumes:
+  rdb-run:
+  fdb-tmp:
