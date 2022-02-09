@@ -1,2 +1,2 @@
 # AgnostiCity
-An eutopia for hobbyist services
+A utopia for hobbyist services
