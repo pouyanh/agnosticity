@@ -1,0 +1,18 @@
+desc: Development mode app runner
+
+watch_depth: 1000
+watch_paths:
+  - .
+
+triggers:
+  - name: "run"
+    pattens:
+      - '**/*.go'
+      - '!**/*_test.go'
+    signal: TERM
+    delay: 100ms
+    stop_timeout: 3s
+    shell: true
+    cmd: >
+      if pidof __debug_bin &> /dev/null; then kill $(pidof __debug_bin); fi &&
+      dlv debug --headless -l :2345 --api-version=2 --accept-multiclient --log --continue ./cmd/mounting

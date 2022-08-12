@@ -1,0 +1,26 @@
+linters:
+  enable-all: true
+  disable:
+    - scopelint
+    - maligned
+    - wsl
+    - tparallel
+    - gomnd
+    - tagliatelle
+    - dupl
+    - godox
+    - gochecknoglobals
+    - paralleltest
+    - gochecknoinits
+    - nakedret
+    - funlen
+    - godot
+    - gci
+    - forbidigo
+    - ineffassign
+    - ifshort
+    - wrapcheck
+    - nonamedreturns
+    - nosprintfhostport
+  fast: true
+

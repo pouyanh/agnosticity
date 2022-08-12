@@ -1,0 +1,4 @@
+connections:
+  redis:
+    username: foreman
+    password: foremanpass

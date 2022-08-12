@@ -3,7 +3,7 @@
 		"1": {
 			"Name": "AgnostiCity",
 			"Group": "AgnostiCity",
-			"Host": "rdb.agn",
+			"Host": "postgres.agn",
 			"Port": 5432,
 			"Username": "agnostic",
 			"SSLMode": "prefer",

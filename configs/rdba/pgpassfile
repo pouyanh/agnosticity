@@ -1,2 +1,0 @@
-rdb.agn:5432:*:agnostic:pass
-rdb.agn:5432:*:postgres:pass

@@ -28,7 +28,7 @@ debug.test
 Thumbs.db
 
 # Customization
-configs/fdb/tls
+configs/redis/tls
 docker-compose.override.yml
 
 # Cache

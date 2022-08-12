@@ -1,0 +1,181 @@
+swagger: "2.0"
+info:
+  title: AgnostiCity
+  description: AgnostiCity communication protocol aka AGP
+  version: 0.0.1
+  contact:
+    name: Pouyan Heyratpour
+    url: http://pouyanh.github.io
+    email: pouyan@janstun.com
+
+schemes:
+  - http
+
+# API Root path belonging to this module
+basePath: /api
+
+consumes:
+  - application/json
+  - application/x-www-form-urlencoded
+
+produces:
+  - application/json
+
+tags:
+  - name: maintenance
+    description: Monitoring, health checks, ping-pongs, ...
+
+paths:
+  # ------------------ #
+  #     Conventions    #
+  # ------------------ #
+
+  # Shared
+  #     204: No content
+  #     401: Unauthorized.
+  #     404: Resource not found.
+  #     500: Error is in our side.
+  #     503: Down for maintenance
+
+  # GET: Query
+  #   Responses:
+  #     200: Answer ready.
+
+  # POST: Command
+  #   Responses:
+  #     200: Task done.
+  #     201: Command validated, Task in progress...
+  #     202: Command accepted, Command validation in progress...
+  #     205: Client needs to refresh token for further requests
+  #     409: Rejected because of business error
+
+  # PUT: Full Update
+
+  # PATCH: Partial Update
+
+  # DELETE: Remove
+
+  # ------------------ #
+  #       Loans        #
+  # ------------------ #
+
+  /health-check:
+    get:
+      operationId: healthCheck
+      description: Checks service health
+      tags:
+        - maintenance
+      responses:
+        204:
+          description: Healthy
+
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/Error"
+
+definitions:
+
+  # ------------------ #
+  #     Primitives     #
+  # ------------------ #
+
+  Timestamp:
+    type: integer
+    format: int64
+    description: Timestamp in nano seconds
+    example: 1591437128000
+
+  LandlinePhoneNumber:
+    type: string
+    description: Landline phone number
+    example: "+982175654585"
+
+  MobilePhoneNumber:
+    type: string
+    description: Mobile phone number
+    example: "+989123456789"
+
+  EmailAddress:
+    type: string
+    description: Email address
+    example: "pouyan@janstun.com"
+
+  # ------------------ #
+  #       Error        #
+  # ------------------ #
+
+  Error:
+    type: object
+
+  # ------------------ #
+  #     Pagination     #
+  # ------------------ #
+
+  PaginationGuide:
+    type: object
+    description: Pagination guide for a list of objects
+    properties:
+      count:
+        type: integer
+        description: Number of all items in current query
+        example: 25
+      page:
+        type: integer
+        description: Current page
+        example: 1
+      pages:
+        type: integer
+        description: Number of total result pages in current query
+        example: 3
+      pageSize:
+        type: integer
+        description: Current page size
+        example: 10
+
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    in: header
+    name: Authorization
+
+  ApiKey:
+    type: apiKey
+    in: header
+    name: X-API-Key
+
+security:
+  - Bearer: [ ]
+
+parameters:
+
+  # ------------------ #
+  #     Pagination     #
+  # ------------------ #
+
+  Page:
+    in: query
+    name: p
+    type: integer
+    description: Desired page number in a paginated result set
+    minimum: 1
+    default: 1
+
+  PageSize:
+    in: query
+    name: psz
+    type: integer
+    description: Desired page size in a paginated result set
+    minimum: 0
+    default: 10
+
+  # ------------------ #
+  #        Sort        #
+  # ------------------ #
+
+  SortAscending:
+    in: query
+    name: asc
+    type: boolean
+    description: Whether to sort ascending (true -> low...high/old...new) or descending (false -> high...low/new...old)
+    default: false

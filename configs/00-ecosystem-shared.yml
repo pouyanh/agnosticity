@@ -1,0 +1,78 @@
+connections:
+  nats:
+    protocol: nats
+    host: nats.agn
+    port: 4222
+  redis:
+    protocol: rediss
+    host: redis.agn
+    port: 6379
+  postgres:
+    protocol: postgresql
+    host: postgres.agn
+    port: 5432
+    username: agnostic
+    password: pass
+  mongo:
+    protocol: mongodb
+    host: mongo.agn
+    port: 27017
+  jaeger:
+    protocol: https
+    host: jaeger.agn
+    port: 14268
+    resource: api/traces
+
+configurators:
+  database:
+    driver: postgres
+    encoder: agc
+    connection:
+      name: postgres
+      resource: agn_configs
+  etcd:
+    driver: etcd
+    encoder: agc
+    connection.name: etcd
+
+loggers:
+  default:
+    driver: console
+    encoder: agl
+    level: debug
+
+tracers:
+  default:
+    driver: jaeger
+    encoder: agt
+    connection.name: jaeger
+
+databases:
+  cars:
+    driver: postgres
+    encoder: agd-cars
+    connection:
+      name: postgres
+      resource: agn_cars
+  events:
+    driver: mongo
+    encoder: agd-events
+    connection:
+      name: mongo
+      resource: agn_events
+  volatile:
+    driver: redis
+    encoder: agd-map
+    connection.name: redis
+
+entrypoints:
+  bus:
+    driver: nats
+    encoder: agp
+    connection.name: nats
+
+endpoints:
+  bus:
+    driver: nats
+    encoder: agp
+    connection.name: nats

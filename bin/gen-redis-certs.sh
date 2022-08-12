@@ -107,7 +107,7 @@ main() {
 
 	# dirRoot="$(realpath "$(dirname "${0}")/..")"
 	dirOut="$(realpath "${1:-$(pwd)}")"
-	fqdn="${2:-"fdb.agn"}"
+	fqdn="${2:-"redis.agn"}"
 	crtOrg="AgnostiCity Redis"
 
 	mkdir -p "${dirOut}"

@@ -1,0 +1,2 @@
+postgres.agn:5432:*:agnostic:pass
+postgres.agn:5432:*:postgres:pass

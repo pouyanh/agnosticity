@@ -1,0 +1,26 @@
+connections:
+  redis:
+    username: apig
+    password: apigpass
+  gw-http:
+    protocol: http
+    host: 0.0.0.0
+    port: 80
+
+entrypoints:
+  http:
+    driver: http
+    encoder: agp
+    allowed:
+      - *
+    connection:
+      name: gw-http
+      resource: api
+  websocket:
+    driver: ws
+    encoder: agp
+    allowed:
+      - *
+    connection:
+      name: gw-http
+      resource: ws
