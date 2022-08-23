@@ -23,7 +23,9 @@ produces:
 
 tags:
   - name: maintenance
-    description: Monitoring, health checks, ping-pongs, ...
+    description: Monitoring, Health Checks, Ping-Pongs, ...
+  - name: access
+    description: Authentication
 
 paths:
   # ------------------ #
@@ -56,7 +58,7 @@ paths:
   # DELETE: Remove
 
   # ------------------ #
-  #       Loans        #
+  #     Maintenance    #
   # ------------------ #
 
   /health-check:
@@ -69,6 +71,22 @@ paths:
         204:
           description: Healthy
 
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/Error"
+
+  # ------------------ #
+  #       Access       #
+  # ------------------ #
+
+  /auth:
+    post:
+      operationId: authenticate
+      description: Authenticates a user and returns an access token which can be used in private requests
+      tags:
+        - access
+      responses:
         default:
           description: Error
           schema:

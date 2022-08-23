@@ -1,0 +1,11 @@
+syntax = "proto3";
+package agp;
+
+message CmdAuthenticate {
+	AuthenticationMethod method = 1;
+}
+
+enum AuthenticationMethod {
+	Username = 0;
+	PhoneNumber = 1;
+}
